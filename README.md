@@ -1,4 +1,5 @@
 # helm schema gen plugin
+This is a fork from knechtionscoding/helm-schema-gen, with added options to make use of Helm schema validation capability.
 
 ![](https://github.com/KnechtionsCoding/helm-schema-gen/workflows/goreleaser/badge.svg)
 
@@ -214,7 +215,30 @@ You can save it to a file like this
 ```
 helm schema-gen values.yaml > values.schema.json
 ```
+## Extra Helm validation options
+You can add comments into your values.yaml file to automatically add constraint to your value.schema.json file. Which can be usefull if using this in a CI.
 
+ Available options are :
+|option|description|
+|-----|-----|
+|schemaRegex|Adds a `pattern` condition to your key|
+|schemaEnum|Allows to limit the number of available string (must be comma-separated, no spaces)|
+|schemaMinimum|Minimum value for an integer|
+|schemaMaximum|Maximum value for an integer|
+**Example:**
+```yaml
+## @schemaEnum image.pullPolicy Always,Never,IfNotPresent
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+## @schemaRegex host.fqdn ^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|([a-zA-Z]{1}[0-9]{1})|([0-9]{1}[a-zA-Z]{1})|([a-zA-Z0-9][a-zA-Z0-9-_]{1,61}[a-zA-Z0-9]))\.([a-zA-Z]{2,6}|[a-zA-Z0-9-]{2,30}\.[a-zA-Z]{2,3})$
+host:
+  fqdn: this.is.ok
+## @schemaMinimum service.port 1024
+## @schemaMaximum service.port 30000
+service:
+  port: 8080
+```
 ## Issues? Feature Requests? Proposals? Feedback?
 
 Put them all in [GitHub issues](https://github.com/KnechtionsCoding/helm-schema-gen/issues)
