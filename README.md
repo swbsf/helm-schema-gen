@@ -225,12 +225,15 @@ You can add comments into your values.yaml file to automatically add constraint 
 |schemaEnum|Allows to limit the number of available string (must be comma-separated, no spaces)|
 |schemaMinimum|Minimum value for an integer|
 |schemaMaximum|Maximum value for an integer|
+|schemaForceType|Override detected type (useful when you do not want default values set, but a correct schema). Accepted values are: null, string, boolean, integer, number, object, array|
 **Example:**
 ```yaml
 ## @schemaEnum image.pullPolicy Always,Never,IfNotPresent
+## @schemaForceType image.tag string
 image:
   repository: nginx
   pullPolicy: IfNotPresent
+  tag:
 ## @schemaRegex host.fqdn ^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|([a-zA-Z]{1}[0-9]{1})|([0-9]{1}[a-zA-Z]{1})|([a-zA-Z0-9][a-zA-Z0-9-_]{1,61}[a-zA-Z0-9]))\.([a-zA-Z]{2,6}|[a-zA-Z0-9-]{2,30}\.[a-zA-Z]{2,3})$
 host:
   fqdn: this.is.ok

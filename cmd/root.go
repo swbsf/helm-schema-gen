@@ -13,18 +13,54 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func walk(key string, value string, jsonValues map[string]any) map[string]any {
-	for _, subkey := range strings.Split(key, ".") {
-		jsonValues = jsonValues["properties"].(map[string]any)[subkey].(map[string]any)
-	}
-	return jsonValues
-}
-
 type extractSource struct {
 	option     string
 	key        string
 	value      string
 	jsonValues map[string]any
+}
+
+type HelmSchemaType struct {
+	slug string
+}
+
+func (r HelmSchemaType) String() string {
+	return r.slug
+}
+
+var (
+	HelmNull    = HelmSchemaType{"null"}
+	HelmString  = HelmSchemaType{"string"}
+	HelmBoolean = HelmSchemaType{"boolean"}
+	HelmInteger = HelmSchemaType{"integer"}
+	HelmObject  = HelmSchemaType{"object"}
+	HelmArray   = HelmSchemaType{"array"}
+)
+
+func typeFromString(s string) (HelmSchemaType, error) {
+	switch s {
+	case HelmNull.slug:
+		return HelmNull, nil
+	case HelmString.slug:
+		return HelmString, nil
+	case HelmInteger.slug:
+		return HelmInteger, nil
+	case HelmBoolean.slug:
+		return HelmBoolean, nil
+	case HelmObject.slug:
+		return HelmObject, nil
+	case HelmArray.slug:
+		return HelmArray, nil
+	}
+
+	return HelmNull, errors.New("unknown type: " + s)
+}
+
+func walk(key string, value string, jsonValues map[string]any) map[string]any {
+	for _, subkey := range strings.Split(key, ".") {
+		jsonValues = jsonValues["properties"].(map[string]any)[subkey].(map[string]any)
+	}
+	return jsonValues
 }
 
 func (s extractSource) extractEnums() error {
@@ -70,6 +106,18 @@ func (s extractSource) extractMaximum() error {
 			return fmt.Errorf("'%s' must return an integer : %v", s.key, err)
 		}
 		child["maximum"] = v
+	}
+	return nil
+}
+
+func (s extractSource) extractForceType() error {
+	if s.option == "@schemaForceType" {
+		child := walk(s.key, s.value, s.jsonValues)
+		forcedType, err := typeFromString(s.value)
+		if err != nil {
+			return err
+		}
+		child["type"] = forcedType.slug
 	}
 	return nil
 }
@@ -127,8 +175,9 @@ Examples:
 				err2 := vars.extractRegex()
 				err3 := vars.extractMinimum()
 				err4 := vars.extractMaximum()
+				err5 := vars.extractForceType()
 
-				if err := errors.Join(err1, err2, err3, err4); err != nil {
+				if err := errors.Join(err1, err2, err3, err4, err5); err != nil {
 					return err
 				}
 			}
