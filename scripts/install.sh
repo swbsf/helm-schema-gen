@@ -355,7 +355,7 @@ End of functions from https://github.com/client9/shlib
 EOF
 
 PROJECT_NAME="helm-schema-gen"
-OWNER=KnechtionsCoding
+OWNER=swbsf
 REPO="helm-schema-gen"
 BINARY=helm-schema-gen
 FORMAT=tar.gz
