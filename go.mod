@@ -1,6 +1,6 @@
 module github.com/swbsf/helm-schema-gen
 
-go 1.19
+go 1.20
 
 require (
 	github.com/karuppiah7890/go-jsonschema-generator v0.0.0-20191229070329-082ad3307d9e
